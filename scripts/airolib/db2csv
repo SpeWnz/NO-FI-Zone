@@ -1,0 +1,10 @@
+#!/bin/sh
+# usage: ./db2csv <airolib db file> <csv output name>
+
+if [ "$#" -ne 2 ]
+then
+	printf "USAGE: ./db2csv <airolib db file> <csv output name>\n"
+	exit
+fi
+
+sqlite3 -batch -header -csv $1 "select essid.essid, passwd.passwd, lower(hex(pmk.pmk)) from essid, pmk,passwd where pmk.passwd_id == passwd.passwd_id AND pmk.essid_id == essid.essid_id;" > $2

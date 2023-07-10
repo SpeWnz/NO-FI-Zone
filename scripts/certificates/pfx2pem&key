@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# script per wpa-enterprise rogue ap
+# converte i file .pfx (pkcs12) in due file separati (.pem e .key)
+
+if [ "$#" -ne 2 ]; then
+	printf "Usage: ./pfx2pem&key <path to .pfx file> <output name without extension>\n"
+	exit
+fi
+
+printf "Password will be prompted twice (for .pem and .key) \n\n"
+
+printf "> Step 1 - Extracting cert \n"
+/usr/bin/openssl pkcs12 -in $1 -out $2.key -nocerts -nodes
+printf "\n"
+
+printf "> Step 2 - Extracting key \n"
+/usr/bin/openssl pkcs12 -in $1 -out $2.pem -nokeys -clcerts
+printf "\n"
+
+printf "Done. \n"
+

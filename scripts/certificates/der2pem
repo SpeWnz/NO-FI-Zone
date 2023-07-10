@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# script per wpa-enterprise rogue ap
+# converte i file .der esportati da wireshark in .pem
+
+if [ "$#" -ne 1 ]; then
+	printf "Usage: ./der2text <path to .der file> <path to .pem>\n"
+	printf "NOTE: do not specify extensions for the output file\n"
+	exit
+fi
+
+/usr/bin/openssl x509 -inform der -in "$1" -outform pem -out "$2.pem"

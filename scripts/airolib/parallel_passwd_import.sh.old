@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# path dei file 
+WORDLIST_PATH=$1
+
+#split della wordlist (in 4 parti)
+split $WORDLIST_PATH -n 4
+
+# import degli ssid sequenziale
+printf "Importing passwords: \n"
+printf "Importing on DB1 ...\n"
+airolib-ng DB1.db --import essid xaa
+
+printf "Importing on DB2 ...\n"
+airolib-ng DB2.db --import essid xab
+
+printf "Importing on DB3 ...\n"
+airolib-ng DB3.db --import essid xac
+
+printf "Importing on DB4 ...\n"
+airolib-ng DB4.db --import essid xad
+
+# rimuovo file temporanei
+rm xaa
+rm xab
+rm xac
+rm xad

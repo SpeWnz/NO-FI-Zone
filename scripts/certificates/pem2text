@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# script per wpa-enterprise rogue ap
+# converte i file .pem in testo leggibile
+
+if [ "$#" -ne 1 ]; then
+	printf "Usage: ./pem2text <path to .pem file>\n"
+	exit
+fi
+
+/usr/bin/openssl x509 -inform pem -in "$1" -text

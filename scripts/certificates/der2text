@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# script per wpa-enterprise rogue ap
+# converte i file .der esportati da wireshark in testo leggibile
+
+if [ "$#" -ne 1 ]; then
+	printf "Usage: ./der2text <path to .der file>\n"
+	exit
+fi
+
+/usr/bin/openssl x509 -inform der -in "$1" -text
