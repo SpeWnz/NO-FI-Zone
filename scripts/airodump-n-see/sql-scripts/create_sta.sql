@@ -1,0 +1,1 @@
+CREATE TABLE stations (Station_MAC TEXT,  First_time_seen TEXT,  Last_time_seen TEXT,  Power INTEGER,  num_of_packets INTEGER,  BSSID TEXT,  Probed_ESSIDs TEXT,  ap_OUI TEXT,  sta_OUI TEXT)

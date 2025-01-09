@@ -1,0 +1,5 @@
+{
+    "oui-db-abs-path":"absolute path to the oui db here",
+    "queries-json-path":"queries.json",
+    "report-style-file":"style.css"
+}

@@ -1,3 +1,4 @@
+import ZHOR_Modules.fileManager as fm
 import ZHOR_Modules.requestUtils as requ
 import ZHOR_Modules.nicePrints as np
 import ZHOR_Modules.fileManager as fm
@@ -29,42 +30,54 @@ args = parser.parse_args()
 
 np.DEBUG = ("--debug" in sys.argv)
 
-HEADERS = requ.requestFile2Headers('api-header.txt')
+API_TOKENS = fm.fileToSimpleList('api-tokens.txt')
 
 outputFileName = args.q.replace("%%","_") + ".csv"
 
 searchAfter = None
 firstRequest = True
 
-while True:
-    URL =  "https://api.wigle.net/api/v2/network/search?"
-    URL += "latrange1={}".format(args.latFrom)
-    URL += "&latrange2={}".format(args.latTo)
-    URL += "&longrange1={}".format(args.lonFrom)
-    URL += "&longrange2={}".format(args.lonTo)
-    URL += "&resultsPerPage=1000"
-    URL += "&variance=0.200&minQoS=0&encryption=&netid=&ssid="
-    URL += "&ssidlike={}".format(urllib.parse.quote(args.q))
-    URL += "&Query=Query"
+for token in API_TOKENS:
+    np.infoPrint("An api token was selected from the list.")
+    np.debugPrint("Token: " + token)
+    tokenExausted = False
 
-    if (searchAfter != None):
-        URL += "&searchAfter={}".format(searchAfter)
-    
-    np.debugPrint(URL)
-    r = requests.get(url=URL,headers=HEADERS,verify=False)
+    HEADERS = {'Authorization':'Basic ' + token}
 
-    jsonObj = json.loads(r.text)
-    if ('searchAfter' in jsonObj):
-        searchAfter = jsonObj['searchAfter']
-    else:
-        np.debugPrint("no searchAfter parameter")
+    while not tokenExausted:
+        URL =  "https://api.wigle.net/api/v2/network/search?"
+        URL += "latrange1={}".format(args.latFrom)
+        URL += "&latrange2={}".format(args.latTo)
+        URL += "&longrange1={}".format(args.lonFrom)
+        URL += "&longrange2={}".format(args.lonTo)
+        URL += "&resultsPerPage=1000"
+        URL += "&variance=0.200&minQoS=0&encryption=&netid=&ssid="
+        URL += "&ssidlike={}".format(urllib.parse.quote(args.q))
+        URL += "&Query=Query"
 
-    if(np.DEBUG):
-        print(r.status_code)
-        if(r.status_code != 200):
-            print(r.content)
+        if (searchAfter != None):
+            URL += "&searchAfter={}".format(searchAfter)
+        
+        np.debugPrint(URL)
+        r = requests.get(url=URL,headers=HEADERS,verify=False)
 
-    np.debugPrint("writing to csv...")
-    csvUtils.lod2CSV_v2(lod=jsonObj['results'],csvPath=outputFileName,mode='a',insertHeader=firstRequest)
+        if(r.status_code == 429):
+            np.infoPrint("Queries exausted for the current token. Selecting new one...")
+            tokenExausted = True
+        else:
 
-    firstRequest = False
+            jsonObj = json.loads(r.text)
+            if ('searchAfter' in jsonObj):
+                searchAfter = jsonObj['searchAfter']
+            else:
+                np.debugPrint("no searchAfter parameter")
+
+            if(np.DEBUG):
+                print(r.status_code)
+                if(r.status_code != 200):
+                    print(r.content)
+
+            np.debugPrint("writing to csv...")
+            csvUtils.lod2CSV_v2(lod=jsonObj['results'],csvPath=outputFileName,mode='a',insertHeader=firstRequest)
+
+            firstRequest = False

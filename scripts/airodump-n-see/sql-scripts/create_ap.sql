@@ -1,0 +1,1 @@
+CREATE TABLE access_points (BSSID TEXT,  First_time_seen TEXT,  Last_time_seen TEXT,  channel INTEGER,  Speed INTEGER,  Privacy TEXT,  Cipher TEXT,  Authentication TEXT,  Power INTEGER,  num_beacons INTEGER,  num_IV INTEGER,  LAN_IP TEXT,  ID_length INTEGER,  ESSID TEXT,  Key TEXT,  ap_OUI TEXT)

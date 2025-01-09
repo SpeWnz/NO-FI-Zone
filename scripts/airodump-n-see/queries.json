@@ -1,0 +1,70 @@
+[
+    {
+        "title":"APs in scope - verbose data",
+        "query":"sql-scripts/q1.sql"
+    },
+    {
+        "title":"APs in scope - summarized data",
+        "query":"sql-scripts/q2.sql"
+    },
+    {
+        "title":"Unique SSIDs - summarized data",
+        "query":"sql-scripts/q3.sql"
+    },
+    {
+        "title":"Radio channels used by in-scope SSIDs",
+        "query":"sql-scripts/q4.sql"
+    },
+    {
+        "title":"Radio channels used by out-of-scope SSIDs",
+        "query":"sql-scripts/q5.sql"
+    },
+    {
+        "title":"Out of scope networks - summarized data",
+        "query":"sql-scripts/q6.sql"
+    },
+    {
+        "title":"Out of scope networks using WPA2 Enterprise",
+        "query":"sql-scripts/q7.sql"
+    },
+    {
+        "title":"Disclosed client probe-requests | requests related to SSIDs in scope",
+        "query":"sql-scripts/q8.sql"
+    },
+    {
+        "title":"Disclosed client probe-requests | Top 10 probed SSIDs",
+        "query":"sql-scripts/q16.sql"
+    },
+    {
+        "title":"Disclosed client probe-requests | Unique probe requests SSIDs",
+        "query":"sql-scripts/q17.sql"
+    },
+    {
+        "title":"OUIs cross check - all access points",
+        "query":"sql-scripts/q9.sql"
+    },
+    {
+        "title":"OUIs cross check - unassociated clients probing for in-scope SSIDs",
+        "query":"sql-scripts/q10.sql"
+    },
+    {
+        "title":"OUIs cross check - clients \"probing for\" or \"connected to\" in-scope WPA2 Enterprise SSIDs",
+        "query":"sql-scripts/q11.sql"
+    },
+    {
+        "title":"OUIs cross check - clients \"probing for\" or \"connected to\" out-of-scope WPA2 Enterprise SSIDs",
+        "query":"sql-scripts/q12.sql"
+    },
+    {
+        "title":"OUIs cross check - clients \"probing for\" or \"connected to\" in-scope WPA2 Enterprise SSIDs | Unique vendors",
+        "query":"sql-scripts/q13.sql"
+    },
+    {
+        "title":"OUIs cross check - clients \"probing for\" or \"connected to\" out-of-scope WPA2 Enterprise SSIDs | Unique vendors",
+        "query":"sql-scripts/q14.sql"
+    },
+    {
+        "title":"OUIs cross check - Identify known default passwords and charsets (for WPA2-PSK or WPA3-SAE)",
+        "query":"sql-scripts/q15.sql"
+    }
+]
